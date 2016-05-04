@@ -15,17 +15,23 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sample.app.model.Person;
-import com.sample.app.dao.PersonRepository;
+import com.app.service.UserService;
+import com.sample.app.dao.UserDao;
+import com.sample.app.model.User;
+import com.sample.request.CreateUserRequest;
+import com.sample.response.CreateUserResponse;
 
 @RestController
-@RequestMapping("/")
+@RequestMapping("/api/v1/user")
 public class UserController {
 
 	private Logger logger = LoggerFactory.getLogger(UserController.class);
 
 	@Autowired
-	private PersonRepository PersonRepository;
+	private UserDao userDao;
+
+	@Autowired
+	private UserService userService;
 
 	@RequestMapping(method = RequestMethod.GET, value = "/ping")
 	public String healthCheck() {
@@ -33,10 +39,11 @@ public class UserController {
 	}
 
 	// Register User API
-	@RequestMapping(method = RequestMethod.POST, value = "/api/v1/users/registerUser")
-	public Map<String, Object> createUser(
-			@RequestBody Map<String, Object> userMap) {
+	@RequestMapping(method = RequestMethod.POST, value = "email")
+	public CreateUserResponse createUser(CreateUserRequest request) {
 
+		return userService.createUser(request);
+		
 		Map<String, Object> response = new LinkedHashMap<String, Object>();
 
 		logger.info("Entering into Register User Method with Request Body :: "
@@ -58,21 +65,16 @@ public class UserController {
 				if (!userMap.containsKey("lastName")) {
 					userMap.put("lastName", "");
 				}
-				List<Person> list = getUserDetails(userMap.get("email")
+				List<User> list = getUserDetails(userMap.get("email")
 						.toString());
 				if (list.size() > 0) {
 					response.put("message",
 							"You are already Registered in our System. Please Sign In");
 				} else {
 
-					Person person = new Person(userMap.get("firstName")
-							.toString(), userMap.get("lastName").toString(),
-							userMap.get("email").toString(), userMap.get(
-									"password").toString(), userMap.get("role")
-									.toString(), userMap.get("token")
-									.toString(), true);
+					User person = new User();
 
-					PersonRepository.save(person);
+					userDao.save(person);
 
 					response.put("message",
 							"You have been registered successfully. Thanks!");
@@ -89,9 +91,9 @@ public class UserController {
 	}
 
 	// @RequestMapping(method = RequestMethod.GET, value = "/api/v1/user")
-	public List<Person> getUserDetails(@RequestParam("email") String email) {
+	public List<User> getUserDetails(@RequestParam("email") String email) {
 		Map<String, Object> response = new LinkedHashMap<String, Object>();
-		return PersonRepository.findByEmail(email);
+		return userDao.findByEmail(email);
 	}
 
 	// Get User Details By Email API
@@ -100,13 +102,13 @@ public class UserController {
 			@RequestParam("email") String email) {
 		Map<String, Object> response = new LinkedHashMap<String, Object>();
 
-		List<Person> list = getUserDetails(email);
+		List<User> list = getUserDetails(email);
 		if (list.size() == 0) {
 			response.put("message",
 					"No Registered User corressponding to this Email");
 		} else {
 
-			response.put("user", PersonRepository.findByEmail(email).get(0));
+			response.put("user", userDao.findByEmail(email).get(0));
 		}
 		return response;
 
@@ -118,7 +120,7 @@ public class UserController {
 
 		Map<String, Object> response = new LinkedHashMap<String, Object>();
 
-		List<Person> p = PersonRepository.findByEmail(email);
+		List<User> p = userDao.findByEmail(email);
 
 		if (p.size() == 0) {
 			response.put("message", "No Account Exists for this Email Id");
@@ -131,9 +133,9 @@ public class UserController {
 
 	// Get List of Users By First Name API
 	@RequestMapping(method = RequestMethod.GET, value = "/api/v1/user/name/{firstName}")
-	public List<Person> getUserDetailsByName(
+	public List<User> getUserDetailsByName(
 			@PathVariable("firstName") String firstName) {
-		return PersonRepository.findByFirstName(firstName);
+		return userDao.findByFirstName(firstName);
 	}
 
 	// PassWord Change API
@@ -153,15 +155,13 @@ public class UserController {
 				response.put("message",
 						"No Account Exists for the Requested Email");
 			} else {
-				Person user = getUserDetails(email).get(0);
-				Person p = new Person(user.getFirstName(), user.getLastName(),
-						user.getEmail(), user.getPassword(), user.getRole(),
-						user.getToken(), true);
+				User user = getUserDetails(email).get(0);
+				User p = new User();
 
 				p.setPassword(userMap.get("password").toString());
 
-				PersonRepository.delete(user);
-				PersonRepository.save(p);
+				userDao.delete(user);
+				userDao.save(p);
 
 				response.put("message",
 						"Password have been successfully changed. Thanks!");
@@ -181,15 +181,11 @@ public class UserController {
 		if (getUserDetails(email).size() == 0) {
 			response.put("message", "No Account Exists for the Requested Email");
 		} else {
-			Person user = getUserDetails(email).get(0);
-			Person p = new Person(user.getFirstName(), user.getLastName(),
-					user.getEmail(), user.getPassword(), user.getRole(),
-					user.getToken(), true);
+			User user = getUserDetails(email).get(0);
+			User p = new User();
 
-			p.setIsTokenActive(false);
-
-			PersonRepository.delete(user);
-			PersonRepository.save(p);
+			userDao.delete(user);
+			userDao.save(p);
 
 			response.put("message",
 					"Token has been successfully Expired. Please signIn once again. Thanks!");
@@ -210,8 +206,8 @@ public class UserController {
 		} else if (StringUtils.isEmpty(password)) {
 			response.put("message", "Please provide Password");
 		} else {
-			Person user = getUserDetails(email).get(0);
-			String actualPass = PersonRepository.findPasswordByEmail(email)
+			User user = getUserDetails(email).get(0);
+			String actualPass = userDao.findPasswordByEmail(email)
 					.getPassword();
 
 			if (!actualPass.equals(password)) {
@@ -220,12 +216,10 @@ public class UserController {
 								+ " with the right Password");
 			} else {
 
-				Person p = new Person(user.getFirstName(), user.getLastName(),
-						user.getEmail(), user.getPassword(), user.getRole(),
-						user.getToken(), true);
+				User p = new User();
 
-				PersonRepository.delete(user);
-				PersonRepository.save(p);
+				userDao.delete(user);
+				userDao.save(p);
 
 				response.put("message", "Signed In Successfully. Thanks!");
 				response.put("user", p);
