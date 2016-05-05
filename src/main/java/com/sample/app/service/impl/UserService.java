@@ -69,6 +69,13 @@ public class UserService implements IUserService{
 			} else if (StringUtils.isEmpty(request.getMobileNumber())) {
 				response.setErrorCode("ER-003"); 
 				response.setErrorMessage("Please enter your Mobile Number");
+			} else if (StringUtils.isEmpty(request.getRole())) {
+				response.setErrorCode("ER-003"); 
+				response.setErrorMessage("Please enter your Role");
+			} else if ( !(request.getRole().equalsIgnoreCase("user") ||  request.getRole().equalsIgnoreCase("mentor")
+				||	request.getRole().equalsIgnoreCase("admin") || request.getRole().equalsIgnoreCase("general"))) {
+				response.setErrorCode("ER-008"); 
+				response.setErrorMessage("Please enter Valid Role.");
 			} else {
 
 				List<User> list = userDao.findByEmail(request.getEmail());
