@@ -15,11 +15,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.app.service.UserService;
 import com.sample.app.dao.UserDao;
 import com.sample.app.model.User;
-import com.sample.request.CreateUserRequest;
-import com.sample.response.CreateUserResponse;
+import com.sample.app.request.CreateUserRequest;
+import com.sample.app.response.CreateUserResponse;
+import com.sample.app.service.IUserService;
+import com.sample.app.service.impl.UserService;
 
 @RestController
 @RequestMapping("/api/v1/user")
@@ -40,54 +41,8 @@ public class UserController {
 
 	// Register User API
 	@RequestMapping(method = RequestMethod.POST, value = "email")
-	public CreateUserResponse createUser(CreateUserRequest request) {
-
+	public CreateUserResponse createUser(@RequestBody CreateUserRequest request) {
 		return userService.createUser(request);
-		
-		Map<String, Object> response = new LinkedHashMap<String, Object>();
-
-		logger.info("Entering into Register User Method with Request Body :: "
-				+ userMap);
-
-		try {
-			if (!userMap.containsKey("firstName")) {
-				response.put("message", "First Name is a Mandatory Param");
-			} else if (!userMap.containsKey("email")) {
-				response.put("message", "Email is a Mandatory Param");
-			} else if (!userMap.containsKey("password")) {
-				response.put("message", "Password is a Mandatory Param");
-			} else if (!userMap.containsKey("role")) {
-				response.put("message", "User Role is a Mandatory Param");
-			} else if (!userMap.containsKey("token")) {
-				response.put("message", "Token is a Mandatory Param");
-			} else {
-
-				if (!userMap.containsKey("lastName")) {
-					userMap.put("lastName", "");
-				}
-				List<User> list = getUserDetails(userMap.get("email")
-						.toString());
-				if (list.size() > 0) {
-					response.put("message",
-							"You are already Registered in our System. Please Sign In");
-				} else {
-
-					User person = new User();
-
-					userDao.save(person);
-
-					response.put("message",
-							"You have been registered successfully. Thanks!");
-					response.put("user", person);
-				}
-			}
-
-		} catch (Exception e) {
-			logger.info(e.getStackTrace().toString());
-			response.put("message", "Error Occured");
-			response.put("error", e.getStackTrace().toString());
-		}
-		return response;
 	}
 
 	// @RequestMapping(method = RequestMethod.GET, value = "/api/v1/user")

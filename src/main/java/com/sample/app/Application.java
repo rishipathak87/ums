@@ -12,8 +12,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @Configuration
 @EnableScheduling
 @EnableAspectJAutoProxy
-@ComponentScan({ "com.sample" })
-@ImportResource("classpath*:spring/application-context.xml")
+//@ComponentScan({ "com.sample" })
+//@ImportResource("classpath*:spring/application-context.xml")
 @SpringBootApplication
 public class Application extends WebMvcConfigurerAdapter {
 

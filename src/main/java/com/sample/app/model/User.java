@@ -1,12 +1,16 @@
 package com.sample.app.model;
 
-import java.sql.Timestamp;
+import java.util.Date;
 
 import lombok.Data;
 
 import org.springframework.data.annotation.Id;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
+
 @Data
+@JsonSerialize(include=JsonSerialize.Inclusion.NON_EMPTY)
 public class User {
 
 	@Id 
@@ -17,12 +21,17 @@ public class User {
 	private String lastName;
 	private String email;
 	private String password;
+	private String displayName;
 	private String role;
-	private Timestamp createdTime;
-	private Timestamp updatedTime;
+	private Date createdTime;
+	private Date updatedTime;
 	private boolean isActive;
-	private String Gender;
+	private String gender;
+	private String mobileNumber;
+	
 	//yyyy-mm-dd
 	private String dob;
+	
+	
 	
 }
