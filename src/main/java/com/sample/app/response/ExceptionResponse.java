@@ -3,7 +3,7 @@ package com.sample.app.response;
 import lombok.Data;
 
 @Data
-public class ErrorResponse {
+public class ExceptionResponse {
 	
 	private String errorCode;
 	private String errorMessage;

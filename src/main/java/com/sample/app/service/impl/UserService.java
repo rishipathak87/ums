@@ -1,133 +1,74 @@
 package com.sample.app.service.impl;
 
 import java.sql.Timestamp;
-import java.util.Date;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.apache.commons.lang.*;
 
 import com.sample.app.dao.UserDao;
+import com.sample.app.dto.UserDTO;
+import com.sample.app.errorcodes.UMSGenericExceptionCodes;
+import com.sample.app.exception.UMSGenericException;
+import com.sample.app.mapper.UMSServiceObjectMapper;
 import com.sample.app.model.User;
 import com.sample.app.request.CreateUserRequest;
+import com.sample.app.request.GetUserRequest;
 import com.sample.app.response.CreateUserResponse;
+import com.sample.app.response.GetUserResponse;
 import com.sample.app.service.IUserService;
 
 @Service
 @Slf4j
-public class UserService implements IUserService{
+public class UserService implements IUserService {
 
 	@Autowired
 	UserDao userDao;
-	
+
+	@Autowired
+	UMSServiceObjectMapper mapper;
+
 	@Override
 	public CreateUserResponse createUser(CreateUserRequest request) {
 
 		log.info("calling create user api for request : " + request);
 
-	//	Map<String, Object> response = new LinkedHashMap<String, Object>();
 		CreateUserResponse response = new CreateUserResponse();
-		
-		User person = new User();
-		
-		try{
-			if (StringUtils.isEmpty(request.getFirstName())) {
-				response.setErrorCode("ER-005"); 
-				response.setErrorMessage("Please enter a valid First Name");
-			} else if (StringUtils.isEmpty(request.getMiddleName())) {
-				response.setErrorCode("ER-005"); 
-				response.setErrorMessage("Please enter a valid Middle Name");
-			} else if (StringUtils.isEmpty(request.getLastName())) {
-				response.setErrorCode("ER-005"); 
-				response.setErrorMessage("Please enter a valid Last Name");
-			} else if (StringUtils.isEmpty(request.getDisplayName())) {
-				response.setErrorCode("ER-005"); 
-				response.setErrorMessage("Please enter a valid Display Name");
-			} else if (StringUtils.isEmpty(request.getEmail())) {
-				response.setErrorCode("ER-008"); 
-				response.setErrorMessage("Please enter your email address.");
-			}  else if (StringUtils.isEmpty(request.getPassword())) {
-				response.setErrorCode("ER-003"); 
-				response.setErrorMessage("Please enter your password");
-			} else if (request.getPassword().length() < 6) {
-				response.setErrorCode("ER-001"); 
-				response.setErrorMessage("Please enter a valid passowrd with 6 digits");
-			} else if (StringUtils.isEmpty(request.getGender())) {
-				response.setErrorCode("ER-006"); 
-				response.setErrorMessage("Please select a valid gender");
-			}  else if (!((request.getGender().equalsIgnoreCase("male")) || 
-					(request.getGender().equalsIgnoreCase("female")))) {
-				response.setErrorCode("ER-006"); 
-				response.setErrorMessage("Please select a valid gender - male/female");
-			}  
-			else if (StringUtils.isEmpty(request.getDob())) {
-				response.setErrorCode("ER-007"); 
-				response.setErrorMessage("Please select a valid date of birth in format yyyy-mm-dd");
-			} else if (StringUtils.isEmpty(request.getMobileNumber())) {
-				response.setErrorCode("ER-003"); 
-				response.setErrorMessage("Please enter your Mobile Number");
-			} else if (StringUtils.isEmpty(request.getRole())) {
-				response.setErrorCode("ER-003"); 
-				response.setErrorMessage("Please enter your Role");
-			} else if ( !(request.getRole().equalsIgnoreCase("user") ||  request.getRole().equalsIgnoreCase("mentor")
-				||	request.getRole().equalsIgnoreCase("admin") || request.getRole().equalsIgnoreCase("general"))) {
-				response.setErrorCode("ER-008"); 
-				response.setErrorMessage("Please enter Valid Role.");
-			} else {
 
-				List<User> list = userDao.findByEmail(request.getEmail());
-				if (list.size() > 0) {
-					response.setErrorCode("ER-004"); 
-					response.setErrorMessage("This email is already registered with other user, please enter a different email address");
-				} else {
-					
-					person.setActive(true);
-					person.setCreatedTime(new Timestamp(System.currentTimeMillis()));
-					person.setDisplayName(request.getDisplayName());
-					person.setDob(request.getDob());
-					person.setEmail(request.getEmail());
-					person.setFirstName(request.getFirstName());
-					person.setGender(request.getGender());
-					person.setLastName(request.getLastName());
-					person.setMiddleName(request.getMiddleName());
-					person.setPassword(request.getPassword());
-					if(StringUtils.isEmpty(request.getRole())){
-						person.setRole("User");
-					}else{
-						person.setRole(request.getRole());
-					}
-					person.setRole(request.getRole());
-					person.setMobileNumber(request.getMobileNumber());
-					person.setCreatedTime(new Timestamp(System.currentTimeMillis()));
-					person.setUpdatedTime(new Timestamp(System.currentTimeMillis()));
-					userDao.save(person);
-					
-					response.setIsActive("true");
-					response.setDisplayName(person.getDisplayName());
-					response.setDob(person.getDob());
-					response.setEmail(person.getEmail());
-					response.setFirstName(person.getFirstName());
-					response.setGender(person.getGender());
-					response.setLastName(person.getLastName());
-					response.setMiddleName(person.getMiddleName());
-					response.setMobileNumber(person.getMobileNumber());
-					response.setCreatedTime((Date) person.getCreatedTime());
-					response.setUpdatedTime((Date) person.getUpdatedTime());
-					response.setToken("To be Implemented");
-					
-				}
-			}
+		List<User> users = userDao.findByEmail(request.getUserDto().getEmail());
+		if (users.size() > 0) {
+			throw new UMSGenericException(
+					UMSGenericExceptionCodes.EMAIL_ALREADY_EXISTS.errMsg(),
+					UMSGenericExceptionCodes.EMAIL_ALREADY_EXISTS.errMsg());
+		} else {
 
-		} catch (Exception e) {
-			log.info(e.getStackTrace().toString());
-			response.setErrorCode("UMS-500");
-			response.setErrorMessage(e.getMessage());
+			User user = mapper.mapUserDTOtoUser(request.getUserDto());
+			user.setActive(true);
+			user.setCreatedTime(new Timestamp(System.currentTimeMillis()));
+			user.setUpdatedTime(new Timestamp(System.currentTimeMillis()));
+			userDao.save(user);
+			UserDTO userDto = mapper.mapUserToUserDto(user);
+			response.setUserDto(userDto);
+			response.setToken("To be Implemented");
 		}
+
 		return response;
 	}
-		
-	
+
+	@Override
+	public GetUserResponse getUserByEmail(GetUserRequest request) {
+		List<User> user = userDao.findByEmail(request.getEmail());
+		if (user == null || user.isEmpty()) {
+			throw new UMSGenericException(
+					UMSGenericExceptionCodes.EMAIL_DOES_NOT_EXISTS.errCode(),
+					UMSGenericExceptionCodes.EMAIL_DOES_NOT_EXISTS.errMsg());
+		}
+		UserDTO userDto = mapper.mapUserToUserDto(user.get(0));
+		GetUserResponse response = new GetUserResponse();
+		response.setUserDto(userDto);
+		return response;
+	}
+
 }
