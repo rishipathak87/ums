@@ -98,7 +98,7 @@ public class UserService implements IUserService{
 					person.setUpdatedTime(new Timestamp(System.currentTimeMillis()));
 					userDao.save(person);
 					
-					response.setActive(person.isActive());
+					response.setIsActive("true");
 					response.setDisplayName(person.getDisplayName());
 					response.setDob(person.getDob());
 					response.setEmail(person.getEmail());

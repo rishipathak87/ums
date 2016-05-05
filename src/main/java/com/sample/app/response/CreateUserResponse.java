@@ -11,7 +11,7 @@ import lombok.Data;
 @JsonSerialize(include=JsonSerialize.Inclusion.NON_EMPTY)
 public class CreateUserResponse {
 	
-	private boolean isActive;
+	
 	private String password;
 	private String email;
 	private String firstName;
@@ -27,7 +27,7 @@ public class CreateUserResponse {
 	private Date updatedTime;
 	private String errorCode;
 	private String errorMessage;
-	
+	private String isActive;
 	
 
 }
