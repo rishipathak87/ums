@@ -19,7 +19,6 @@ import com.sample.app.dao.UserDao;
 import com.sample.app.model.User;
 import com.sample.app.request.CreateUserRequest;
 import com.sample.app.response.CreateUserResponse;
-import com.sample.app.service.IUserService;
 import com.sample.app.service.impl.UserService;
 
 @RestController
