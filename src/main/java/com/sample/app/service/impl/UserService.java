@@ -37,14 +37,14 @@ public class UserService implements IUserService {
 
 		CreateUserResponse response = new CreateUserResponse();
 
-		List<User> users = userDao.findByEmail(request.getUserDto().getEmail());
+		List<User> users = userDao.findByEmail(request.getUserDTO().getEmail());
 		if (users.size() > 0) {
 			throw new UMSGenericException(
 					UMSGenericExceptionCodes.EMAIL_ALREADY_EXISTS.errMsg(),
 					UMSGenericExceptionCodes.EMAIL_ALREADY_EXISTS.errMsg());
 		} else {
 
-			User user = mapper.mapUserDTOtoUser(request.getUserDto());
+			User user = mapper.mapUserDTOtoUser(request.getUserDTO());
 			user.setActive(true);
 			user.setCreatedTime(new Timestamp(System.currentTimeMillis()));
 			user.setUpdatedTime(new Timestamp(System.currentTimeMillis()));

@@ -1,16 +1,21 @@
 package com.sample.app.request;
 
-import lombok.Data;
+import java.io.Serializable;
 
-import org.hibernate.validator.constraints.NotBlank;
+import javax.validation.Valid;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import com.sample.app.dto.UserDTO;
-import com.sample.app.errorcodes.UMSRequestExceptionConstants;
 
 @Data
-public class CreateUserRequest {
-
-	@NotBlank(message = UMSRequestExceptionConstants.INVALID_PASSWORD)
-	private UserDTO userDto;
+@AllArgsConstructor
+@NoArgsConstructor
+public class CreateUserRequest implements Serializable {
+	private static final long serialVersionUID = 1L;
+	@Valid
+	private UserDTO userDTO;
 
 }

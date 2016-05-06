@@ -6,9 +6,13 @@ import com.sample.app.validation.annotation.DOB;
 import com.sample.app.validation.annotation.Gender;
 import com.sample.app.validation.annotation.Name;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class UserDTO {
 	
 	private String email;
