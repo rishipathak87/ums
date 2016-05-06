@@ -3,9 +3,9 @@ package com.sample.app.response;
 import lombok.Data;
 
 @Data
-public class ForgotPasswordResponse {
+public class DeleteUserResponse {
 
 	private String email;
-	private String password;
+	private String status;
 	
 }

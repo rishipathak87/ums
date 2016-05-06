@@ -2,7 +2,7 @@ package com.sample.app.errorcodes;
 
 public enum UMSGenericExceptionCodes {
 
-	EMAIL_ALREADY_EXISTS("EG-001","Email already exists."),
+	EMAIL_ALREADY_EXISTS("EG-001","Account for this Email already exists."),
 	EMAIL_DOES_NOT_EXISTS("EG-003","User Does not exists."),
 	APPLICATION_ERROR_OCCURED("EG-002", "Application error occured"),
 
