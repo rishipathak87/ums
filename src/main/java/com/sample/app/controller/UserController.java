@@ -24,12 +24,13 @@ import com.sample.app.errorcodes.UMSRequestExceptionCodes;
 import com.sample.app.exception.RequestParameterException;
 import com.sample.app.model.User;
 import com.sample.app.request.CreateUserRequest;
+import com.sample.app.request.GetUserRequest;
 import com.sample.app.response.CreateUserResponse;
 import com.sample.app.service.impl.UserService;
 
 @RestController
 @RequestMapping("/api/v1/user")
-public class UserController extends AbstractController{
+public class UserController extends AbstractController {
 
 	private Logger log = LoggerFactory.getLogger(UserController.class);
 
@@ -99,13 +100,15 @@ public class UserController extends AbstractController{
 		return response;
 	}
 
-	// Get List of Users By First Name API
-	@RequestMapping(method = RequestMethod.GET, value = "email/{emailId}")
-	public List<User> getUserDetailsByName(
-			@PathVariable("firstName") String firstName) {
-		return userDao.findByFirstName(firstName);
-	}
-
+	/*
+	 * // Get List of Users By First Name API
+	 * 
+	 * @RequestMapping(method = RequestMethod.GET, value = "email/{emailId}")
+	 * public List<User> getUserDetailsByName(
+	 * 
+	 * @PathVariable("firstName") String firstName) { return
+	 * userDao.findByFirstName(firstName); }
+	 */
 	// PassWord Change API
 	@RequestMapping(method = RequestMethod.PUT, value = "/api/v1/user/changePassword")
 	public Map<String, Object> changePassword(
@@ -175,8 +178,10 @@ public class UserController extends AbstractController{
 			response.put("message", "Please provide Password");
 		} else {
 			User user = getUserDetails(email).get(0);
-			String actualPass = userDao.findPasswordByEmail(email)
-					.getPassword();
+			GetUserRequest getUserRequest = new GetUserRequest();
+			getUserRequest.setEmail(email);
+			String actualPass = userService.getUserByEmail(getUserRequest)
+					.getUserDto().getPassword();
 
 			if (!actualPass.equals(password)) {
 				response.put("message",

@@ -1,11 +1,12 @@
 package com.sample.app.mapper;
 
-import java.util.Date;
+import org.springframework.stereotype.Component;
 
 import com.sample.app.dto.UserDTO;
 import com.sample.app.enums.Role;
 import com.sample.app.model.User;
 
+@Component
 public class UMSServiceObjectMapper {
 
 	public User mapUserDTOtoUser(UserDTO userDTo) {
