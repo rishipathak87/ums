@@ -1,14 +1,14 @@
 package com.sample.app.dto;
 
-import com.sample.app.enums.Role;
-import com.sample.app.errorcodes.UMSRequestExceptionConstants;
-import com.sample.app.validation.annotation.DOB;
-import com.sample.app.validation.annotation.Gender;
-import com.sample.app.validation.annotation.Name;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import com.sample.app.enums.Gender;
+import com.sample.app.enums.Role;
+import com.sample.app.errorcodes.UMSRequestExceptionConstants;
+import com.sample.app.validation.annotation.DOB;
+import com.sample.app.validation.annotation.Name;
 
 @Data
 @AllArgsConstructor
@@ -23,8 +23,7 @@ public class UserDTO {
 	@Name(message = UMSRequestExceptionConstants.INVALID_NAME)
 	private String lastName;
 	private String displayName;
-	@Gender(message = UMSRequestExceptionConstants.INVALID_GENDER)
-	private String gender;
+	private Gender gender;
 	@DOB(message = UMSRequestExceptionConstants.INVALID_DOB)
 	private String dob;
 	private String mobileNumber;
