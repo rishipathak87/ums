@@ -11,8 +11,8 @@ public enum Role {
 	@Getter
 	private String role;
 
-	private Role(String errCode) {
-		this.role = errCode;
+	private Role(String role) {
+		this.role = role;
 	}
 
 	public static Role forName(String role) {

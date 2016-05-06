@@ -16,9 +16,8 @@ import com.sample.app.validator.DOBValidator;
 @Constraint(validatedBy = { DOBValidator.class })
 @Documented
 public @interface DOB {
+	
 	String message() default "";
-
-	boolean checkUnderAge() default false;
 
 	Class<?>[] groups() default {};
 

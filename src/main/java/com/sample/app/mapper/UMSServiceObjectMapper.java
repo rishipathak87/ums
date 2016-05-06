@@ -3,28 +3,29 @@ package com.sample.app.mapper;
 import org.springframework.stereotype.Component;
 
 import com.sample.app.dto.UserDTO;
+import com.sample.app.enums.Gender;
 import com.sample.app.enums.Role;
 import com.sample.app.model.User;
 
 @Component
 public class UMSServiceObjectMapper {
 
-	public User mapUserDTOtoUser(UserDTO userDTo) {
+	public User mapUserDTOtoUser(UserDTO userDTO) {
 		User user = new User();
-		user.setDisplayName(userDTo.getDisplayName());
-		user.setDob(userDTo.getDob());
-		user.setEmail(userDTo.getEmail());
-		user.setFirstName(userDTo.getFirstName());
-		user.setGender(userDTo.getGender());
-		user.setLastName(userDTo.getLastName());
-		user.setMiddleName(userDTo.getMiddleName());
-		user.setPassword(userDTo.getPassword());
-		if (userDTo.getRole() == null) {
+		user.setDisplayName(userDTO.getDisplayName());
+		user.setDob(userDTO.getDob());
+		user.setEmail(userDTO.getEmail());
+		user.setFirstName(userDTO.getFirstName());
+		user.setGender(userDTO.getGender().toString());
+		user.setLastName(userDTO.getLastName());
+		user.setMiddleName(userDTO.getMiddleName());
+		user.setPassword(userDTO.getPassword());
+		if (userDTO.getRole() == null) {
 			user.setRole(Role.STANDARD.toString());
 		} else {
-			user.setRole(userDTo.getRole().toString());
+			user.setRole(userDTO.getRole().toString());
 		}
-		user.setMobileNumber(userDTo.getMobileNumber());
+		user.setMobileNumber(userDTO.getMobileNumber());
 		return user;
 	}
 
@@ -36,7 +37,7 @@ public class UMSServiceObjectMapper {
 		dto.setDob(user.getDob());
 		dto.setEmail(user.getEmail());
 		dto.setFirstName(user.getFirstName());
-		dto.setGender(user.getGender());
+		dto.setGender(Gender.valueOf(user.getGender()));
 		dto.setLastName(user.getLastName());
 		dto.setMiddleName(user.getMiddleName());
 		dto.setMobileNumber(user.getMobileNumber());
