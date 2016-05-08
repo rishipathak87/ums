@@ -1,9 +1,5 @@
 package com.sample.app.controller;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -11,9 +7,7 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -23,8 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sample.app.dao.UserDao;
 import com.sample.app.errorcodes.UMSRequestExceptionCodes;
 import com.sample.app.exception.RequestParameterException;
-import com.sample.app.model.User;
 import com.sample.app.request.CreateUserRequest;
+import com.sample.app.request.ForgotPasswordRequest;
 import com.sample.app.request.GetUserRequest;
 import com.sample.app.request.ResetPasswordRequest;
 import com.sample.app.response.CreateUserResponse;
@@ -48,16 +42,16 @@ public class UserController extends AbstractController {
 	@Autowired
 	private UserService userService;
 
-	@RequestMapping(method = RequestMethod.GET, value = "/ping")
+	@RequestMapping(method = RequestMethod.GET, value = "/health")
 	public String healthCheck() {
 		return "200 OK!";
 	}
 
 	// Create User API
-	@RequestMapping(method = RequestMethod.POST, value = "email")
+	@RequestMapping(method = RequestMethod.POST, value = "/email")
 	public CreateUserResponse createUser(
 			@RequestBody @Valid CreateUserRequest request,
-			BindingResult results, HttpServletRequest httpRequest) {
+			BindingResult results, HttpServletRequest httpRequest) throws Exception {
 		if (results.hasErrors() && null != results.getAllErrors()) {
 			UMSRequestExceptionCodes code = UMSRequestExceptionCodes
 					.valueOf(results.getAllErrors().get(0).getDefaultMessage());
@@ -68,57 +62,55 @@ public class UserController extends AbstractController {
 	}
 
 	// Get User Details By Email API
-	@RequestMapping(method = RequestMethod.GET, value = "getUserDetails")
-	public GetUserResponse getUserByEmail(
-			@RequestParam("email") @NotNull String email,
-			@RequestParam(value = "token", required = false) String token) {
-		return userService.getUserByEmail(email);
+	@RequestMapping(method = RequestMethod.GET, value = "/email")
+	public GetUserResponse getUserByEmail(GetUserRequest request) throws Exception {
+		return userService.getUserByEmail(request);
 	}
 
 	// Get Passowrd By Email API
-	@RequestMapping(method = RequestMethod.GET, value = "retrievePassword")
-	public ForgotPasswordResponse getPassByEmail(
-			@RequestParam("email") @NotNull String email,
-			@RequestParam(value = "token", required = false) String token) {
-		return userService.getPassByEmail(email);
+	@RequestMapping(method = RequestMethod.POST, value = "/forgot/password")
+	public ForgotPasswordResponse forgotPassword(
+			ForgotPasswordRequest request) {
+		return userService.forgotPassword("email");
 	}
-	
+
 	@RequestMapping(method = RequestMethod.GET, value = "delete")
 	public DeleteUserResponse deleteUserByEmail(
 			@RequestParam("email") @NotNull String email,
 			@RequestParam(value = "token", required = false) String token) {
 		return userService.deleteUserByEmail(email);
 	}
-	
-	// This API will take Email as Input and will retrieve all users List only if
+
+	// This API will take Email as Input and will retrieve all users List only
+	// if
 	// User role is Admin
 	@RequestMapping(method = RequestMethod.GET, value = "users")
 	public GetAllUsersResponse getAllUsers(
 			@RequestParam("email") @NotNull String email,
 			@RequestParam("pagination") @NotNull int pagination) {
-		return userService.getAllUsers(email,pagination);
+		return userService.getAllUsers(email, pagination);
 	}
-	
+
 	@RequestMapping(method = RequestMethod.PUT, value = "changePassword")
 	public ResetPasswordResponse changePassword(
 			@RequestBody ResetPasswordRequest request) {
-		
+
 		log.info("calling change password api for request : " + request);
-		
+
 		ResetPasswordResponse response = new ResetPasswordResponse();
-		
-		if (! PasswordChangeRequestValidator.validatePasswordChangeRequest(request).
-				equals("Valid Request")){
+
+		if (!PasswordChangeRequestValidator.validatePasswordChangeRequest(
+				request).equals("Valid Request")) {
 			response.setErrorCode("EG-011");
-			response.setErrorMessage(PasswordChangeRequestValidator.validatePasswordChangeRequest(request));
+			response.setErrorMessage(PasswordChangeRequestValidator
+					.validatePasswordChangeRequest(request));
 			return response;
-		}else	
-		
+		} else
+
 			return userService.changePassword(request);
-		
+
 	}
-	
-	
+
 	// // PassWord Change API
 	// @RequestMapping(method = RequestMethod.PUT, value =
 	// "/api/v1/user/changePassword")

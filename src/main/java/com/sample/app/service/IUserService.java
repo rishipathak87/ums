@@ -7,11 +7,10 @@ import com.sample.app.response.ForgotPasswordResponse;
 import com.sample.app.response.GetUserResponse;
 
 public interface IUserService {
-	public CreateUserResponse createUser(CreateUserRequest request);
-	
-//	public GetUserResponse getUserByEmail(GetUserRequest request);
+	public CreateUserResponse createUser(CreateUserRequest request) throws Exception;
 
-	public GetUserResponse getUserByEmail(String email);
+	public GetUserResponse getUserByEmail(GetUserRequest request) throws Exception;
 
-	ForgotPasswordResponse getPassByEmail(String email);
+	ForgotPasswordResponse forgotPassword(String email);
+
 }

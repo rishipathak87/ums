@@ -1,5 +1,8 @@
 package com.sample.app.request;
 
-public class ForgotPasswordRequest {
+import lombok.Data;
 
+@Data
+public class ForgotPasswordRequest {
+	private String emailId;
 }

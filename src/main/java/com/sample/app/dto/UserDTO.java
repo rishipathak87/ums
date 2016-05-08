@@ -41,5 +41,7 @@ public class UserDTO {
 	@NotNull(message = UMSRequestExceptionConstants.BLANK_PASSWORD)
 	private String password;
 	private String isActive;
+	
+	private String userId;
 
 }

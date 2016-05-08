@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 
 import com.sample.app.dao.UserDao;
 import com.sample.app.dto.UserDTO;
+import com.sample.app.encryption.Encrypter;
+import com.sample.app.encryption.TokenDto;
 import com.sample.app.errorcodes.UMSGenericExceptionCodes;
 import com.sample.app.exception.UMSGenericException;
 import com.sample.app.mapper.UMSServiceObjectMapper;
@@ -34,10 +36,14 @@ public class UserService implements IUserService {
 	UserDao userDao;
 
 	@Autowired
+	Encrypter encrypt;
+
+	@Autowired
 	UMSServiceObjectMapper mapper;
 
 	@Override
-	public CreateUserResponse createUser(CreateUserRequest request) {
+	public CreateUserResponse createUser(CreateUserRequest request)
+			throws Exception {
 
 		log.info("calling create user api for request : " + request);
 
@@ -49,25 +55,28 @@ public class UserService implements IUserService {
 					UMSGenericExceptionCodes.EMAIL_ALREADY_EXISTS.errMsg(),
 					UMSGenericExceptionCodes.EMAIL_ALREADY_EXISTS.errMsg());
 		} else {
-
 			User user = mapper.mapUserDTOtoUser(request.getUserDTO());
 			user.setActive(true);
 			user.setCreatedTime(new Timestamp(System.currentTimeMillis()));
 			user.setUpdatedTime(new Timestamp(System.currentTimeMillis()));
-			userDao.save(user);
-			UserDTO userDto = mapper.mapUserToUserDto(user);
+			User createdUser = userDao.save(user);
+			UserDTO userDto = mapper.mapUserToUserDto(createdUser);
 			response.setUserDto(userDto);
-			response.setToken("To be Implemented");
+			TokenDto dto = mapper.createTokenDto(userDto.getUserId());
+			String token = encrypt.encrypt(dto);
+			response.setToken(token);
 		}
-
 		return response;
 	}
 
 	@Override
-	// public GetUserResponse getUserByEmail(GetUserRequest request) {
-	public GetUserResponse getUserByEmail(String email) {
+	public GetUserResponse getUserByEmail(GetUserRequest request)
+			throws Exception {
+		TokenDto dto = encrypt.decrypt(request.getToken());
+		
+		String email = request.getEmail();
 		List<User> user = userDao.findByEmail(email);
-		if (user == null || user.isEmpty()) {
+		if (user == null || user.isEmpty() || !user.get(0).isActive()) {
 			throw new UMSGenericException(
 					UMSGenericExceptionCodes.EMAIL_DOES_NOT_EXISTS.errCode(),
 					UMSGenericExceptionCodes.EMAIL_DOES_NOT_EXISTS.errMsg());
@@ -79,7 +88,7 @@ public class UserService implements IUserService {
 	}
 
 	@Override
-	public ForgotPasswordResponse getPassByEmail(String email) {
+	public ForgotPasswordResponse forgotPassword(String email) {
 		List<User> user = userDao.findByEmail(email);
 		if (user == null || user.isEmpty()) {
 			throw new UMSGenericException(
@@ -114,7 +123,8 @@ public class UserService implements IUserService {
 		long userCount = userDao.count();
 		if (userCount <= pagination * numberOfResults) {
 			response.setStatus("Please provide a lesser digit in Pagination Field");
-		} else if ((userCount > pagination * numberOfResults) && pagination !=0) {
+		} else if ((userCount > pagination * numberOfResults)
+				&& pagination != 0) {
 			List<User> user = userDao.findAll().subList(pagination,
 					pagination + numberOfResults);
 
@@ -166,5 +176,16 @@ public class UserService implements IUserService {
 			response.setStatus("Success");
 		}
 		return response;
+	}
+
+	private boolean isPermitted(String token, String[] requiredRoles)
+			throws Exception {
+		String userId = encrypt.decrypt(token).getUserId();
+		User tokenUser = userDao.findOne(userId);
+		for (String st : requiredRoles) {
+			if (st.equals(tokenUser.getRole()))
+				return true;
+		}
+		return false;
 	}
 }

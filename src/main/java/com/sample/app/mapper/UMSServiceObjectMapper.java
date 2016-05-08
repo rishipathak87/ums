@@ -1,8 +1,13 @@
 package com.sample.app.mapper;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.UUID;
+
 import org.springframework.stereotype.Component;
 
 import com.sample.app.dto.UserDTO;
+import com.sample.app.encryption.TokenDto;
 import com.sample.app.enums.Gender;
 import com.sample.app.enums.Role;
 import com.sample.app.model.User;
@@ -30,7 +35,6 @@ public class UMSServiceObjectMapper {
 	}
 
 	public UserDTO mapUserToUserDto(User user) {
-
 		UserDTO dto = new UserDTO();
 		dto.setIsActive(String.valueOf(user.isActive()));
 		dto.setDisplayName(user.getDisplayName());
@@ -41,8 +45,17 @@ public class UMSServiceObjectMapper {
 		dto.setLastName(user.getLastName());
 		dto.setMiddleName(user.getMiddleName());
 		dto.setMobileNumber(user.getMobileNumber());
+		dto.setUserId(user.getUserId());
+		dto.setRole(Role.valueOf(user.getRole()));
 		return dto;
 
 	}
 
+	public TokenDto createTokenDto(String userId) {
+		TokenDto dto = new TokenDto();
+		dto.setUserId(userId);
+		dto.setUuid(UUID.randomUUID().toString());
+		dto.setExpiry(new Date());
+		return dto;
+	}
 }
