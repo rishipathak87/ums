@@ -70,8 +70,8 @@ public class UserController extends AbstractController {
 	// Get Passowrd By Email API
 	@RequestMapping(method = RequestMethod.POST, value = "/forgot/password")
 	public ForgotPasswordResponse forgotPassword(
-			ForgotPasswordRequest request) {
-		return userService.forgotPassword("email");
+			@RequestBody @Valid ForgotPasswordRequest request) {
+		return userService.forgotPassword(request.getEmailId());
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "delete")

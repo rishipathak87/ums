@@ -27,6 +27,7 @@ import com.sample.app.response.GetAllUsersResponse;
 import com.sample.app.response.GetUserResponse;
 import com.sample.app.response.ResetPasswordResponse;
 import com.sample.app.service.IUserService;
+import com.sample.app.util.EmailUtil;
 
 @Service
 @Slf4j
@@ -97,8 +98,22 @@ public class UserService implements IUserService {
 		}
 		// UserDTO userDto = mapper.mapUserToUserDto(user.get(0));
 		ForgotPasswordResponse response = new ForgotPasswordResponse();
-		response.setEmail(user.get(0).getEmail());
-		response.setPassword(user.get(0).getPassword());
+		String recipeintEmail = user.get(0).getEmail();
+		String pass = user.get(0).getPassword();
+		String name = user.get(0).getFirstName();
+		response.setEmail(recipeintEmail);
+		response.setPassword("Sent to your Registered Email Id");
+		
+		EmailUtil.sendEmail("", recipeintEmail,
+		"resetpass6407@gmail.com", "praveenjain",
+		"Don't Worry, Your Password is here!", "Hi " + name +", <br> </br> <br> </br> Please see below your Password."
+				+ "<br> </br> <br> </br> Registered Email Id : " + recipeintEmail
+				+ "<br> </br> Registered Password : " + pass
+				+ "<br> </br> <br> </br> ** This is an Auto Generated Email."
+				+ "<br> </br> <br> </br> Thanks! <br> </br> <br> </br> Regards, "
+				+ "<br> </br>");
+		
+		
 		return response;
 	}
 
