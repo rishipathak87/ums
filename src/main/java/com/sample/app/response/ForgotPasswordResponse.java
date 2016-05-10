@@ -5,7 +5,6 @@ import lombok.Data;
 @Data
 public class ForgotPasswordResponse {
 
-	private String email;
-	private String password;
+	private boolean status;
 	
 }

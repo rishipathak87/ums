@@ -1,6 +1,5 @@
 package com.sample.app.util;
 
-import java.io.IOException;
 import java.util.Properties;
 
 import javax.mail.Message;
@@ -14,8 +13,12 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+import org.springframework.scheduling.annotation.Async;
+
 
 public class EmailUtil {
+	
+	@Async
 	public static void sendEmail(String reportCompleteName, String receiver, final String sender,
 			final String password, String emailReportSubject, String emailReportBody) {
 		String recipient = receiver;

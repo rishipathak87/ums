@@ -9,6 +9,7 @@ import java.util.Date;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
+import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,19 +32,24 @@ public class Encrypter {
 		Cipher c = Cipher.getInstance(ALGO);
 		c.init(Cipher.ENCRYPT_MODE, key);
 		byte[] encVal = c.doFinal(tokenToString(dto).getBytes());
+		// convert the byte to hex format method 1
+		StringBuffer sb = new StringBuffer();
 
-		String encryptedValue = new BASE64Encoder().encode(encVal);
-		encryptedValue = URLEncoder.encode(encryptedValue, "UTF-8");
-		return encryptedValue;
+		for (int i = 0; i < encVal.length; i++) {
+			sb.append(Integer.toString((encVal[i] & 0xff) + 0x100, 16)
+					.substring(1));
+		}
+		return sb.toString();
 	}
 
 	public TokenDto decrypt(String encryptedData) throws Exception {
 		Key key = generateKey();
+
+		HexBinaryAdapter adapter = new HexBinaryAdapter();
+		byte[] bytes = adapter.unmarshal(encryptedData);
 		Cipher c = Cipher.getInstance(ALGO);
 		c.init(Cipher.DECRYPT_MODE, key);
-		encryptedData = URLDecoder.decode(encryptedData, "UTF-8");
-		byte[] decordedValue = new BASE64Decoder().decodeBuffer(encryptedData);
-		byte[] decValue = c.doFinal(decordedValue);
+		byte[] decValue = c.doFinal(bytes);
 		String decryptedValue = new String(decValue);
 		return StringToTokenDTo(decryptedValue);
 	}
@@ -58,7 +64,8 @@ public class Encrypter {
 	private String tokenToString(TokenDto dto) {
 		SimpleDateFormat dateFormat = new SimpleDateFormat(
 				CommonConstants.DATE_FORMAT);
-		String date = dateFormat.format(new Date()).toString();
+		String date = dateFormat.format(dto.getExpiry().toString());
+
 		StringBuilder st = new StringBuilder().append(dto.getUuid())
 				.append(CommonConstants.SPLITER).append(dto.getUserId())
 				.append(CommonConstants.SPLITER).append(date.toString());

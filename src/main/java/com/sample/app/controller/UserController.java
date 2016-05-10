@@ -18,6 +18,7 @@ import com.sample.app.dao.UserDao;
 import com.sample.app.errorcodes.UMSRequestExceptionCodes;
 import com.sample.app.exception.RequestParameterException;
 import com.sample.app.request.CreateUserRequest;
+import com.sample.app.request.DeleteUserRequest;
 import com.sample.app.request.ForgotPasswordRequest;
 import com.sample.app.request.GetUserRequest;
 import com.sample.app.request.ResetPasswordRequest;
@@ -51,7 +52,8 @@ public class UserController extends AbstractController {
 	@RequestMapping(method = RequestMethod.POST, value = "/email")
 	public CreateUserResponse createUser(
 			@RequestBody @Valid CreateUserRequest request,
-			BindingResult results, HttpServletRequest httpRequest) throws Exception {
+			BindingResult results, HttpServletRequest httpRequest)
+			throws Exception {
 		if (results.hasErrors() && null != results.getAllErrors()) {
 			UMSRequestExceptionCodes code = UMSRequestExceptionCodes
 					.valueOf(results.getAllErrors().get(0).getDefaultMessage());
@@ -63,22 +65,30 @@ public class UserController extends AbstractController {
 
 	// Get User Details By Email API
 	@RequestMapping(method = RequestMethod.GET, value = "/email")
-	public GetUserResponse getUserByEmail(GetUserRequest request) throws Exception {
+	public GetUserResponse getUserByEmail(GetUserRequest request)
+			throws Exception {
 		return userService.getUserByEmail(request);
 	}
 
 	// Get Passowrd By Email API
 	@RequestMapping(method = RequestMethod.POST, value = "/forgot/password")
 	public ForgotPasswordResponse forgotPassword(
-			@RequestBody @Valid ForgotPasswordRequest request) {
-		return userService.forgotPassword(request.getEmailId());
+			@RequestBody @Valid ForgotPasswordRequest request,
+			BindingResult results) {
+		if (results.hasErrors() && null != results.getAllErrors()) {
+			UMSRequestExceptionCodes code = UMSRequestExceptionCodes
+					.valueOf(results.getAllErrors().get(0).getDefaultMessage());
+			log.error("Invalid Request Error occured while  creating user");
+			throw new RequestParameterException(code.errCode(), code.errMsg());
+		}
+		return userService.forgotPassword(request.getEmail());
 	}
 
-	@RequestMapping(method = RequestMethod.GET, value = "delete")
+	@RequestMapping(method = RequestMethod.DELETE, value = "/email")
 	public DeleteUserResponse deleteUserByEmail(
-			@RequestParam("email") @NotNull String email,
-			@RequestParam(value = "token", required = false) String token) {
-		return userService.deleteUserByEmail(email);
+			@RequestBody @Valid DeleteUserRequest request,
+			BindingResult results) {
+		return userService.deleteUserByEmail(request);
 	}
 
 	// This API will take Email as Input and will retrieve all users List only

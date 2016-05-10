@@ -1,11 +1,11 @@
 package com.sample.app.mapper;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.UUID;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.stereotype.Component;
 
+import com.sample.app.constant.CommonConstants;
 import com.sample.app.dto.UserDTO;
 import com.sample.app.encryption.TokenDto;
 import com.sample.app.enums.Gender;
@@ -48,14 +48,13 @@ public class UMSServiceObjectMapper {
 		dto.setUserId(user.getUserId());
 		dto.setRole(Role.valueOf(user.getRole()));
 		return dto;
-
 	}
 
 	public TokenDto createTokenDto(String userId) {
 		TokenDto dto = new TokenDto();
 		dto.setUserId(userId);
-		dto.setUuid(UUID.randomUUID().toString());
-		dto.setExpiry(new Date());
+		dto.setUuid(RandomStringUtils.random(8, true,false));
+		dto.setExpiry(new Date(System.currentTimeMillis() + CommonConstants.EXPIRY_TIME_FOR_TOKEN));
 		return dto;
 	}
 }

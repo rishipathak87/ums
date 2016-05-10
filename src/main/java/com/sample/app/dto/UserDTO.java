@@ -2,6 +2,8 @@ package com.sample.app.dto;
 
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.validator.constraints.NotBlank;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,7 +22,7 @@ import com.sample.app.validation.annotation.Name;
 @JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 public class UserDTO {
 	
-	@NotNull(message = UMSRequestExceptionConstants.INVALID_EMAIL)
+	@NotBlank(message = UMSRequestExceptionConstants.INVALID_EMAIL)
 	private String email;
 	@NotNull(message = UMSRequestExceptionConstants.INVALID_NAME)
 	@Name(message = UMSRequestExceptionConstants.INVALID_NAME)
