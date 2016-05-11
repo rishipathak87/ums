@@ -13,6 +13,7 @@ import com.sample.app.dao.UserDao;
 import com.sample.app.dto.UserDTO;
 import com.sample.app.encryption.Encrypter;
 import com.sample.app.encryption.TokenDto;
+import com.sample.app.enums.Role;
 import com.sample.app.errorcodes.UMSGenericExceptionCodes;
 import com.sample.app.exception.UMSGenericException;
 import com.sample.app.mapper.UMSServiceObjectMapper;
@@ -21,6 +22,7 @@ import com.sample.app.request.CreateUserRequest;
 import com.sample.app.request.GetUserRequest;
 import com.sample.app.request.ResetPasswordRequest;
 import com.sample.app.response.CreateUserResponse;
+import com.sample.app.response.DeleteAllUserResponse;
 import com.sample.app.response.DeleteUserResponse;
 import com.sample.app.response.ForgotPasswordResponse;
 import com.sample.app.response.GetAllUsersResponse;
@@ -130,6 +132,32 @@ public class UserService implements IUserService {
 		response.setEmail(user.get(0).getEmail());
 		response.setStatus("User Account Deleted Successfully");
 		return response;
+	}
+	
+	public DeleteAllUserResponse deleteAllUser(String email) {
+		DeleteAllUserResponse response = new DeleteAllUserResponse();
+		
+		List<User> user = userDao.findByEmail(email);
+		if (user == null || user.isEmpty()) {
+			throw new UMSGenericException(
+					UMSGenericExceptionCodes.EMAIL_DOES_NOT_EXISTS.errCode(),
+					UMSGenericExceptionCodes.EMAIL_DOES_NOT_EXISTS.errMsg());
+		}
+		
+		// Check for Admin Role
+		if(user.get(0).getRole().equals(Role.ADMIN)){
+			
+			List<User> userToDeleted = userDao.findAll();
+			for (int count = 0;count < userToDeleted.size();count++){
+				userToDeleted.get(count).setActive(false);
+				userDao.save(userToDeleted.get(count));
+			}
+			response.setStatus("All User Accounts Deleted Successfully");
+		}else{
+			response.setStatus("You are not authorized to Delete All Users");
+		}
+		return response;
+		
 	}
 
 	public GetAllUsersResponse getAllUsers(String email, int pagination) {

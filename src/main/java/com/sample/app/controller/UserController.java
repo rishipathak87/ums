@@ -22,6 +22,7 @@ import com.sample.app.request.ForgotPasswordRequest;
 import com.sample.app.request.GetUserRequest;
 import com.sample.app.request.ResetPasswordRequest;
 import com.sample.app.response.CreateUserResponse;
+import com.sample.app.response.DeleteAllUserResponse;
 import com.sample.app.response.DeleteUserResponse;
 import com.sample.app.response.ForgotPasswordResponse;
 import com.sample.app.response.GetAllUsersResponse;
@@ -89,6 +90,14 @@ public class UserController extends AbstractController {
 			@RequestParam("email") @NotNull String email,
 			@RequestParam("pagination") @NotNull int pagination) {
 		return userService.getAllUsers(email, pagination);
+	}
+	
+	// Delete All Users if Role is Admin
+	@RequestMapping(method = RequestMethod.GET, value = "delete")
+	public DeleteAllUserResponse deleteAllUser(
+			@RequestParam("email") @NotNull String email,
+			@RequestParam(value = "token", required = false) String token) {
+		return userService.deleteAllUser(email);
 	}
 
 	@RequestMapping(method = RequestMethod.PUT, value = "changePassword")
