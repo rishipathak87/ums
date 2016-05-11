@@ -18,6 +18,7 @@ import com.sample.app.dao.UserDao;
 import com.sample.app.errorcodes.UMSRequestExceptionCodes;
 import com.sample.app.exception.RequestParameterException;
 import com.sample.app.request.CreateUserRequest;
+import com.sample.app.request.DeleteUserRequest;
 import com.sample.app.request.ForgotPasswordRequest;
 import com.sample.app.request.GetUserRequest;
 import com.sample.app.request.ResetPasswordRequest;
@@ -72,14 +73,12 @@ public class UserController extends AbstractController {
 	@RequestMapping(method = RequestMethod.POST, value = "/forgot/password")
 	public ForgotPasswordResponse forgotPassword(
 			@RequestBody @Valid ForgotPasswordRequest request) {
-		return userService.forgotPassword(request.getEmailId());
+		return userService.forgotPassword(request.getEmail());
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "delete")
-	public DeleteUserResponse deleteUserByEmail(
-			@RequestParam("email") @NotNull String email,
-			@RequestParam(value = "token", required = false) String token) {
-		return userService.deleteUserByEmail(email);
+	public DeleteUserResponse deleteUserByEmail(DeleteUserRequest request) {
+		return userService.deleteUserByEmail(request);
 	}
 
 	// This API will take Email as Input and will retrieve all users List only

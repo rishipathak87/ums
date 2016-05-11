@@ -19,6 +19,7 @@ import com.sample.app.exception.UMSGenericException;
 import com.sample.app.mapper.UMSServiceObjectMapper;
 import com.sample.app.model.User;
 import com.sample.app.request.CreateUserRequest;
+import com.sample.app.request.DeleteUserRequest;
 import com.sample.app.request.GetUserRequest;
 import com.sample.app.request.ResetPasswordRequest;
 import com.sample.app.response.CreateUserResponse;
@@ -93,7 +94,7 @@ public class UserService implements IUserService {
 	@Override
 	public ForgotPasswordResponse forgotPassword(String email) {
 		List<User> user = userDao.findByEmail(email);
-		if (user == null || user.isEmpty()) {
+		if (user == null || user.isEmpty() || !user.get(0).isActive()) {
 			throw new UMSGenericException(
 					UMSGenericExceptionCodes.EMAIL_DOES_NOT_EXISTS.errCode(),
 					UMSGenericExceptionCodes.EMAIL_DOES_NOT_EXISTS.errMsg());
@@ -103,8 +104,6 @@ public class UserService implements IUserService {
 		String recipeintEmail = user.get(0).getEmail();
 		String pass = user.get(0).getPassword();
 		String name = user.get(0).getFirstName();
-		response.setEmail(recipeintEmail);
-		response.setPassword("Sent to your Registered Email Id");
 		
 		EmailUtil.sendEmail("", recipeintEmail,
 		"resetpass6407@gmail.com", "praveenjain",
@@ -115,14 +114,15 @@ public class UserService implements IUserService {
 				+ "<br> </br> <br> </br> Thanks! <br> </br> <br> </br> Regards, "
 				+ "<br> </br>");
 		
-		
+		response.setStatus(true);
 		return response;
 	}
 
-	public DeleteUserResponse deleteUserByEmail(String email) {
+	public DeleteUserResponse deleteUserByEmail(DeleteUserRequest request) {
+		String email = request.getEmail();
 		DeleteUserResponse response = new DeleteUserResponse();
 		List<User> user = userDao.findByEmail(email);
-		if (user == null || user.isEmpty()) {
+		if (user == null || user.isEmpty() || !user.get(0).isActive()) {
 			throw new UMSGenericException(
 					UMSGenericExceptionCodes.EMAIL_DOES_NOT_EXISTS.errCode(),
 					UMSGenericExceptionCodes.EMAIL_DOES_NOT_EXISTS.errMsg());
